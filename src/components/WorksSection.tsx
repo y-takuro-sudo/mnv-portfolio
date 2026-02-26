@@ -11,7 +11,7 @@ interface Props {
 }
 
 function WorkListItem({ work, index }: { work: Work; index: number }) {
-  const isExternal = work.directLink && work.url;
+  const isExternal = !!work.url;
   const linkProps = isExternal
     ? { href: work.url!, target: "_blank" as const, rel: "noopener noreferrer" }
     : { href: `/works/${work.id}` };
@@ -49,9 +49,11 @@ function WorkListItem({ work, index }: { work: Work; index: number }) {
           <h3 className="mt-1 text-[#333333]/80 text-base font-medium leading-relaxed group-hover:text-[#333333] transition-colors">
             {work.title}
           </h3>
-          <p className="mt-1 text-[#333333]/40 text-sm leading-relaxed line-clamp-2">
-            {work.description}
-          </p>
+          {work.description && (
+            <p className="mt-1 text-[#333333]/40 text-sm leading-relaxed line-clamp-2">
+              {work.description}
+            </p>
+          )}
           {work.tags && work.tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {work.tags.map((tag) => (
@@ -73,7 +75,7 @@ function WorkListItem({ work, index }: { work: Work; index: number }) {
 }
 
 function WorkGalleryItem({ work, index }: { work: Work; index: number }) {
-  const isExternal = work.directLink && work.url;
+  const isExternal = !!work.url;
   const linkProps = isExternal
     ? { href: work.url!, target: "_blank" as const, rel: "noopener noreferrer" }
     : { href: `/works/${work.id}` };
@@ -92,12 +94,22 @@ function WorkGalleryItem({ work, index }: { work: Work; index: number }) {
         {...linkProps}
         className="group block overflow-hidden"
       >
-        <div className="aspect-[4/3] overflow-hidden bg-[#f5f5f5]">
+        <div className="mb-3">
+          <h3 className="text-[#333333]/80 text-sm font-medium leading-relaxed group-hover:text-[#333333] transition-colors">
+            {work.title}
+          </h3>
+          <time className="text-[11px] text-[#333333]/30 tracking-[0.15em]">
+            {work.publishedAt
+              ? new Date(work.publishedAt).toLocaleDateString("ja-JP")
+              : ""}
+          </time>
+        </div>
+        <div className="aspect-[4/3] overflow-hidden bg-[#f5f5f5] rounded">
           {work.thumbnail ? (
             <img
               src={work.thumbnail}
               alt={work.title}
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#333333]/20">
@@ -105,31 +117,23 @@ function WorkGalleryItem({ work, index }: { work: Work; index: number }) {
             </div>
           )}
         </div>
-        <div className="mt-3">
-          <time className="text-[11px] text-[#333333]/30 tracking-[0.15em]">
-            {work.publishedAt
-              ? new Date(work.publishedAt).toLocaleDateString("ja-JP")
-              : ""}
-          </time>
-          <h3 className="mt-1 text-[#333333]/80 text-sm font-medium leading-relaxed group-hover:text-[#333333] transition-colors">
-            {work.title}
-          </h3>
-          <p className="mt-1 text-[#333333]/40 text-xs leading-relaxed line-clamp-2">
+        {work.description && (
+          <p className="mt-3 text-[#333333]/40 text-xs leading-relaxed line-clamp-2">
             {work.description}
           </p>
-          {work.tags && work.tags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {work.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] tracking-[0.1em] text-[#333333]/30 border border-[#333333]/10 px-1.5 py-0.5"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
+        {work.tags && work.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {work.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-[10px] tracking-[0.1em] text-[#333333]/30 border border-[#333333]/10 px-1.5 py-0.5"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </Wrapper>
     </motion.div>
   );

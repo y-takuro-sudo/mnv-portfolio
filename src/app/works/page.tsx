@@ -1,15 +1,10 @@
 import WorksSection from "@/components/WorksSection";
-import { getWorks, getProjectSettings } from "@/lib/cms";
+import { getWorks } from "@/lib/cms";
 
 export const revalidate = 3600;
 
 export default async function WorksPage() {
-  const [works, project] = await Promise.all([
-    getWorks(),
-    getProjectSettings(),
-  ]);
+  const works = await getWorks();
 
-  const displayMode = project?.displayMode ?? "list";
-
-  return <WorksSection works={works} displayMode={displayMode} />;
+  return <WorksSection works={works} displayMode="gallery" />;
 }

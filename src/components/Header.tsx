@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
   { label: "ABOUT", href: "/about" },
-  { label: "NEWS", href: "/news" },
   { label: "WORKS", href: "/works" },
 ];
 
@@ -24,7 +23,7 @@ export default function Header() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-5 bg-white/80 backdrop-blur-md">
         <button
-          onClick={() => handleNavClick("/")}
+          onClick={() => handleNavClick("/about")}
           className="text-[#333333] text-xl font-bold tracking-[0.25em]"
         >
           MNV

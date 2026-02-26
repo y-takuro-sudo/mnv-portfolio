@@ -1,10 +1,5 @@
-import NewsSection from "@/components/NewsSection";
-import { getNoteArticles } from "@/lib/note";
+import { redirect } from "next/navigation";
 
-export const revalidate = 3600;
-
-export default async function NewsPage() {
-  const articles = await getNoteArticles();
-
-  return <NewsSection articles={articles} />;
+export default function NewsPage() {
+  redirect("/about");
 }

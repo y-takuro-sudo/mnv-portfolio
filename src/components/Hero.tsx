@@ -1,12 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
+  const router = useRouter();
+
   return (
     <section
       id="top"
-      className="h-screen flex flex-col items-center justify-center bg-white relative"
+      className="h-screen flex flex-col items-center justify-center bg-white relative cursor-pointer"
+      onClick={() => router.push("/about")}
     >
       <motion.h1
         initial={{ opacity: 0, y: 16 }}

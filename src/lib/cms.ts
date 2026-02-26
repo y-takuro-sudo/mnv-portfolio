@@ -1,106 +1,66 @@
-export type Work = {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail?: string;
-  url?: string;
-  tags?: string[];
-  directLink?: boolean;
-  publishedAt: string;
-};
+import type { Work, MicroCMSWork, MicroCMSListResponse } from "./types";
 
-export type ProjectSettings = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  displayMode: "list" | "gallery";
-};
+export type { Work } from "./types";
 
-type CMSContent = {
-  id: string;
-  data: {
-    title?: string;
-    description?: string;
-    thumbnail?: string;
-    url?: string;
-    tags?: string[];
-    directLink?: boolean;
-  };
-  publishedAt: string;
-  createdAt: string;
-  updatedAt: string;
-};
+const MICROCMS_SERVICE_DOMAIN = "myptlfo";
+const MICROCMS_API_KEY = process.env.MICROCMS_API_KEY || "";
+const MICROCMS_ENDPOINT = "takuro";
 
-type CMSListResponse = {
-  contents: CMSContent[];
-  totalCount: number;
-  limit: number;
-  offset: number;
-};
+const BASE_URL = `https://${MICROCMS_SERVICE_DOMAIN}.microcms.io/api/v1/${MICROCMS_ENDPOINT}`;
 
-const CMS_API_URL = process.env.CMS_API_URL || "http://localhost:3001";
-const CMS_API_KEY = process.env.CMS_API_KEY || "";
-
-function resolveImageUrl(url: string | undefined): string | undefined {
-  if (!url) return undefined;
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  return `${CMS_API_URL}${url}`;
-}
-
-function toWork(c: CMSContent): Work {
+function toWork(item: MicroCMSWork): Work {
   return {
-    id: c.id,
-    title: c.data.title || "Untitled",
-    description: c.data.description || "",
-    thumbnail: resolveImageUrl(c.data.thumbnail),
-    url: c.data.url || undefined,
-    tags: c.data.tags,
-    directLink: c.data.directLink ?? false,
-    publishedAt: c.publishedAt,
+    id: item.id,
+    title: item.title,
+    thumbnail: item.eyecatch?.url,
+    url: item.url,
+    publishedAt: item.publishedAt,
   };
-}
-
-export async function getProjectSettings(): Promise<ProjectSettings | null> {
-  if (!CMS_API_KEY) return null;
-  try {
-    const res = await fetch(`${CMS_API_URL}/api/v1/${CMS_API_KEY}/project`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    console.error("CMS fetch error: project settings");
-    return null;
-  }
 }
 
 export async function getWorks(): Promise<Work[]> {
+  if (!MICROCMS_API_KEY) {
+    console.warn("MICROCMS_API_KEY is not set");
+    return [];
+  }
+
   try {
-    const res = await fetch(
-      `${CMS_API_URL}/api/v1/${CMS_API_KEY}/contents/works?limit=100`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return [];
-    const data: CMSListResponse = await res.json();
+    const res = await fetch(`${BASE_URL}?limit=100`, {
+      headers: { "X-MICROCMS-API-KEY": MICROCMS_API_KEY },
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) {
+      console.error(`MicroCMS fetch error: ${res.status} ${res.statusText}`);
+      return [];
+    }
+
+    const data: MicroCMSListResponse<MicroCMSWork> = await res.json();
     return data.contents.map(toWork);
-  } catch {
-    console.error("CMS fetch error: works list");
+  } catch (error) {
+    console.error("MicroCMS fetch error:", error);
     return [];
   }
 }
 
 export async function getWork(id: string): Promise<Work | null> {
+  if (!MICROCMS_API_KEY) {
+    console.warn("MICROCMS_API_KEY is not set");
+    return null;
+  }
+
   try {
-    const res = await fetch(
-      `${CMS_API_URL}/api/v1/${CMS_API_KEY}/contents/works/${id}`,
-      { next: { revalidate: 3600 } }
-    );
+    const res = await fetch(`${BASE_URL}/${id}`, {
+      headers: { "X-MICROCMS-API-KEY": MICROCMS_API_KEY },
+      next: { revalidate: 3600 },
+    });
+
     if (!res.ok) return null;
-    const data: CMSContent = await res.json();
+
+    const data: MicroCMSWork = await res.json();
     return toWork(data);
-  } catch {
-    console.error(`CMS fetch error: work ${id}`);
+  } catch (error) {
+    console.error(`MicroCMS fetch error (work ${id}):`, error);
     return null;
   }
 }
