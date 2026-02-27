@@ -31,10 +31,7 @@ export async function getNoteArticles(): Promise<NoteArticle[]> {
       const description = extractTag(itemXml, "description") || "";
       const contentSnippet = stripHtml(description).slice(0, 100);
 
-      const thumbnailMatch = itemXml.match(
-        /<media:thumbnail[^>]*url=["']([^"']*)["']/
-      );
-      const thumbnail = thumbnailMatch?.[1];
+      const thumbnail = extractMediaThumbnail(itemXml);
 
       items.push({ title, link, pubDate, contentSnippet, thumbnail });
     }
@@ -44,6 +41,20 @@ export async function getNoteArticles(): Promise<NoteArticle[]> {
     console.error("Note RSS fetch error:", error);
     return [];
   }
+}
+
+function extractMediaThumbnail(xml: string): string | undefined {
+  // Format: <media:thumbnail>URL</media:thumbnail>
+  const textMatch = xml.match(
+    /<media:thumbnail[^>]*>([^<]+)<\/media:thumbnail>/
+  );
+  if (textMatch) return textMatch[1].trim();
+
+  // Format: <media:thumbnail url="URL" />
+  const attrMatch = xml.match(
+    /<media:thumbnail[^>]*url=["']([^"']*)["']/
+  );
+  return attrMatch?.[1];
 }
 
 function extractTag(xml: string, tag: string): string | undefined {
