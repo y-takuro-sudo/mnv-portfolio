@@ -1,5 +1,3 @@
-import Parser from "rss-parser";
-
 export interface NoteArticle {
   title: string;
   link: string;
@@ -8,40 +6,64 @@ export interface NoteArticle {
   thumbnail?: string;
 }
 
-type CustomItem = {
-  "media:thumbnail"?: { $?: { url?: string } } | string;
-};
-
 export async function getNoteArticles(): Promise<NoteArticle[]> {
-  const parser = new Parser<Record<string, unknown>, CustomItem>({
-    customFields: {
-      item: ["media:thumbnail"],
-    },
-  });
   const rssUrl =
     process.env.NOTE_RSS_URL || "https://note.com/tak_yoshiro0525/rss";
 
   try {
-    const feed = await parser.parseURL(rssUrl);
-    return (feed.items || []).map((item) => {
-      const mediaThumbnail = item["media:thumbnail"];
-      let thumbnail: string | undefined;
-      if (typeof mediaThumbnail === "string") {
-        thumbnail = mediaThumbnail;
-      } else if (mediaThumbnail && typeof mediaThumbnail === "object") {
-        thumbnail = mediaThumbnail.$?.url;
-      }
+    const res = await fetch(rssUrl);
+    if (!res.ok) {
+      console.error(`Note RSS fetch error: ${res.status}`);
+      return [];
+    }
 
-      return {
-        title: item.title || "Untitled",
-        link: item.link || "#",
-        pubDate: item.pubDate || "",
-        contentSnippet: item.contentSnippet?.slice(0, 100),
-        thumbnail,
-      };
-    });
+    const xml = await res.text();
+    const items: NoteArticle[] = [];
+    const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+    let match;
+
+    while ((match = itemRegex.exec(xml)) !== null) {
+      const itemXml = match[1];
+
+      const title = extractTag(itemXml, "title") || "Untitled";
+      const link = extractTag(itemXml, "link") || "#";
+      const pubDate = extractTag(itemXml, "pubDate") || "";
+      const description = extractTag(itemXml, "description") || "";
+      const contentSnippet = stripHtml(description).slice(0, 100);
+
+      const thumbnailMatch = itemXml.match(
+        /<media:thumbnail[^>]*url=["']([^"']*)["']/
+      );
+      const thumbnail = thumbnailMatch?.[1];
+
+      items.push({ title, link, pubDate, contentSnippet, thumbnail });
+    }
+
+    return items;
   } catch (error) {
     console.error("Note RSS fetch error:", error);
     return [];
   }
+}
+
+function extractTag(xml: string, tag: string): string | undefined {
+  const cdataRegex = new RegExp(
+    `<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`
+  );
+  const cdataMatch = xml.match(cdataRegex);
+  if (cdataMatch) return cdataMatch[1].trim();
+
+  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`);
+  const match = xml.match(regex);
+  return match?.[1]?.trim();
+}
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
 }
