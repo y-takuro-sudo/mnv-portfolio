@@ -103,33 +103,20 @@ export default function About({ articles, works }: Props) {
 
         {/* Info grid */}
         <div className="px-6 md:px-16 lg:px-24 pb-16">
-          <div className="border-t border-[#333333]/10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="py-8 md:py-10 border-b border-[#333333]/10"
-            >
-              <span className="text-[11px] tracking-[0.25em] uppercase text-[#333333]/30 font-semibold">
-                Services
-              </span>
-              <p className="mt-3 text-lg md:text-xl lg:text-2xl font-medium text-[#333333]/80 leading-relaxed">
-                Webサイト制作 / ポートフォリオ / HP制作
-              </p>
-            </motion.div>
-          </div>
-
           {/* Bio */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="py-10 md:py-12 border-b border-[#333333]/10"
+            className="py-10 md:py-12 border-t border-b border-[#333333]/10"
           >
             <p className="text-lg md:text-xl lg:text-2xl text-[#333333]/60 leading-[2] max-w-3xl">
-              株式会社WEBB学生インターン。Webサイト・HP・ポートフォリオサイト・スマホアプリの制作を行っています。
+              株式会社WEBB学生インターン・フリーWebクリエイターです。
+              <br />
+              Webサイト・HP・ポートフォリオサイト・スマホアプリの制作を行っています。
+              <br />
+              制作依頼等は下記SNSのDMよりお願いいたします。
             </p>
           </motion.div>
 
