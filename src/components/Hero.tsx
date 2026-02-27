@@ -18,7 +18,7 @@ export default function Hero() {
         transition={{ duration: 1.2, ease: "easeOut" }}
         className="text-[#333333] text-7xl md:text-[140px] font-bold tracking-[0.3em] select-none leading-none"
       >
-        MNV
+        Takuro
       </motion.h1>
       <motion.p
         initial={{ opacity: 0 }}
