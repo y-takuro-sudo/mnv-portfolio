@@ -11,7 +11,8 @@
   },
 
   "vars": {
-    "NOTE_RSS_URL": "https://note.com/tak_yoshiro0525/rss"
+    "NOTE_RSS_URL": "https://note.com/tak_yoshiro0525/rss",
+    "MICROCMS_API_KEY": "gQtFYoskEzw9qFqUHu5FTVoB4gDVU0UoyaHU"
   },
 
   "observability": {
