@@ -144,7 +144,7 @@ export default function About({ articles, works }: Props) {
             className="py-10 md:py-12 border-b border-[#333333]/10"
           >
             <p className="text-lg md:text-xl lg:text-2xl text-[#333333]/60 leading-[2] max-w-3xl">
-              学生でエンジニアをしています。予算に応じてWebサイト制作やHP制作、ポートフォリオの制作を行っております。
+              株式会社WEBB学生インターン。Webサイト・HP・ポートフォリオサイト・スマホアプリの制作を行っています。
             </p>
           </motion.div>
 
